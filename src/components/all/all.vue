@@ -1,0 +1,189 @@
+<template>
+  <div class="all contain contains">
+    <div class="sort">
+      <div v-show="false">{{a}}</div>
+      <ul>
+        <li :class="{ activ:type[0]}" @click="sorts('renqi',0)">人气排序</li>
+        <li :class="{ activ:type[1]}" @click="sorts('updatetime',1)">更新时间</li>
+        <li :class="{ activ:type[2]}" @click="sorts('shouc',2)">总收藏</li>
+        <li :class="{ activ:type[3]}" @click="sorts('count',3)">总字数</li>
+        <li :class="{ activ:type[4]}" @click="sorts('hits',4)">点击量</li>
+      </ul>
+    </div>
+    <div class="booklie" v-if = 'data'>
+      <ul>
+        <li class="book" v-for=" datas in data">
+          <router-link :to="{path:'/book',query:{id:datas.bookid}}"><div class="lft"></div></router-link>
+          <div class="rght">
+            <div>
+              <div class="nme">{{datas.bookname}}</div>
+              <div class="mdden">
+                <span class="athor">{{datas.author}}</span>
+                <span class="tpe">{{datas.type}}</span>
+                <span class="satus">{{datas.state}}</span>
+              </div>
+              <div class="dsc">{{datas.desc}}</div>
+            </div>
+            <div class="cunt">{{datas.count}} 万字</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <!--<div class="step" v-if = 'data'>-->
+      <!--<ul>-->
+        <!--<li v-for = "ste in step" :class="{stepon:stepbs[ste-1]}" @click='nextstep(ste)'>{{ste}}<span v-show="steps>=5">...</span></li>-->
+      <!--</ul>-->
+    <!--</div>-->
+  </div>
+</template>
+
+<style scoped>
+  .all{
+    position: relative;
+    padding-bottom: 80px;
+  }
+  .sort ul>li{
+    color:grey;
+    font-size:16px;
+    float:left;
+    margin-right:30px;
+    cursor:pointer;
+  }
+  .sort>ul{
+    overflow: hidden;
+  }
+  .booklie>ul .book{
+    float: left;
+    margin:30px 20px 30px 0;
+    width:600px;
+  }
+  .booklie>ul .book .lft,.rght{
+    display:inline-block;
+    width:130px;
+    height:160px;
+    vertical-align:top;
+  }
+  .booklie>ul .book .lft{
+    background-color:grey;
+    margin-right:20px;
+  }
+  .booklie>ul .book .rght{
+    width:300px;
+    position: relative;
+  }
+  .booklie>ul .book .right .nme{
+    font-size: 20px;
+    font-weight:700;
+    height:35px;
+    line-height:35px;
+  }
+  .booklie>ul .book .mdden{
+    font-size:15px;
+    color:grey;
+    height:35px;
+    line-height:35px;
+  }
+  .booklie>ul .book .dsc{
+    font-size:15px;
+    font-weight:100;
+    line-height:20px;
+    word-wrap: break-word;
+  }
+  .booklie>ul .book .cunt{
+    position:absolute;
+    font-size:15px;
+    color:grey;
+    bottom: 0;
+  }
+  .sort ul .activ{
+    color: #ff3845;
+    font-size:18px;
+    font-weight:700
+  }
+  .step{
+    position:absolute;
+    bottom:20px;
+    right: 50px;
+  }
+  .step ul{
+    overflow: hidden;
+  }
+  .step ul li{
+    float:left;
+    margin-right: 10px;
+    cursor:pointer;
+    width: 25px;
+    height:25px;
+    line-height:25px;
+    text-align:center;
+  }
+  .stepon{
+    background:red;
+    color:white;
+  }
+
+</style>
+
+<script>
+    import axios from'axios'
+    import Vue from 'vue'
+    Vue.prototype.$http = axios;
+
+    export default {
+        props: {},
+        data() {
+            return {
+              sort:'renqi',
+              type:[],
+              a:true,
+              step:[1,2,3,4,5,6],
+              steps:0,
+              stepbs:[],
+                data:null
+            }
+        },
+        created:function(){
+            let that = new FormData();
+            let thiss = this;
+            this.$http.post('gp/php/book.php',that).then(function(data){
+                thiss.data = data.data;
+                console.log(data.data);
+            }).catch(function(error){
+                console.log(error);});
+            this.step=[1,2,3];
+            this.stepbs=[true,false,false]
+        },
+        methods:{
+          sorts:function(sot,id){
+            this.a = !this.a;
+            let i;
+            let count;
+            this.sort = sot;
+            for(i = 0,count = this.type.length;i<count;i++){
+              this.type[i] = false;
+            }
+            this.type[id] = true;
+            console.log(this.type[id]);
+          },
+          // nextstep:function(st){
+          //   this.a=!this.a;
+          //   this.steps=st;
+          //   for(let i = 0,count = this.stepbs.length;i<count;i++){
+          //     this.stepbs[i] = false;
+          //   }
+          //     if (st >= 5) {
+          //       this.stepbs[3] = true;
+          //       this.step[3] = st;
+          //       this.step[2] = st - 1;
+          //       this.step[1] = st - 2;
+          //       this.step[4] = st + 1;
+          //       this.step[5] = st + 2;
+          //     }
+          //     else {
+          //       this.step = [1, 2, 3];
+          //       this.stepbs[st-1] = true;
+          //     }
+          // }
+        }
+    }
+</script>
